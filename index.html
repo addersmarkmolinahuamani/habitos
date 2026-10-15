@@ -1,0 +1,1090 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mis Hábitos - Panel de Hábitos y Rachas</title>
+    <meta name="description" content="App para registro diario de hábitos, rachas de disciplina y monitoreo semanal de metas.">
+    
+    <!-- PWA & Mobile Web App Meta Tags -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="icon" type="image/png" href="favicon.png">
+    <meta name="theme-color" content="#0f172a">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Mis Hábitos">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        :root {
+            --font-display: 'Plus Jakarta Sans', -apple-system, sans-serif;
+            --font-body: 'Inter', sans-serif;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: #f1f5f9;
+            color: #0f172a;
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        /* PORTADA DE INGRESO (SEGÚN DISEÑO EXACTO) */
+        .auth-screen-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem 1rem;
+            background: linear-gradient(180deg, #f8fafc 0%, #edf2f7 100%);
+        }
+
+        .auth-card {
+            width: 100%;
+            max-width: 420px;
+            background: #ffffff;
+            border-radius: 28px;
+            padding: 2.25rem 2rem 2rem;
+            box-shadow: 0 20px 40px -15px rgba(15, 23, 42, 0.08), 0 0 1px 1px rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .auth-icon-container {
+            width: 82px;
+            height: 82px;
+            border-radius: 24px;
+            background: #0f172a;
+            padding: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            margin-bottom: 1.25rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-icon-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 20px;
+        }
+
+        .auth-title {
+            font-family: var(--font-display);
+            font-size: 1.85rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.025em;
+            margin-bottom: 0.35rem;
+        }
+
+        .auth-subtitle {
+            font-size: 0.88rem;
+            color: #64748b;
+            font-weight: 500;
+            margin-bottom: 1.85rem;
+        }
+
+        .auth-form {
+            width: 100%;
+            text-align: left;
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+        }
+
+        .auth-label {
+            display: block;
+            font-size: 0.73rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            color: #64748b;
+            margin-bottom: 0.45rem;
+            text-transform: uppercase;
+        }
+
+        .auth-input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-field-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            width: 19px;
+            height: 19px;
+            pointer-events: none;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.75rem;
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            font-size: 0.94rem;
+            color: #0f172a;
+            font-weight: 500;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .auth-input:focus {
+            border-color: #2563eb;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+        }
+
+        .auth-password-toggle {
+            position: absolute;
+            right: 12px;
+            background: transparent;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: color 0.15s;
+        }
+
+        .auth-password-toggle:hover {
+            color: #334155;
+        }
+
+        .btn-auth-submit {
+            width: 100%;
+            background: #2563eb;
+            color: #ffffff;
+            font-family: var(--font-display);
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.95rem 1.25rem;
+            border: none;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28);
+            margin-top: 0.35rem;
+        }
+
+        .btn-auth-submit:hover {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+            box-shadow: 0 8px 22px rgba(37, 99, 235, 0.35);
+        }
+
+        .btn-auth-submit:active {
+            transform: translateY(0);
+        }
+
+        /* Tarjeta Licencia Verde */
+        .auth-license-card {
+            margin-top: 1.5rem;
+            width: 100%;
+            background: #f0fdf4;
+            border: 1.5px solid rgba(16, 185, 129, 0.28);
+            border-radius: 20px;
+            padding: 1.25rem 1.15rem;
+            text-align: center;
+        }
+
+        .license-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            color: #047857;
+            font-size: 0.78rem;
+            font-weight: 800;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.6rem;
+        }
+
+        .license-desc {
+            font-size: 0.81rem;
+            color: #475569;
+            line-height: 1.45;
+            margin-bottom: 1rem;
+        }
+
+        .btn-whatsapp-license {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            background: #059669;
+            color: #ffffff;
+            font-family: var(--font-display);
+            font-size: 0.88rem;
+            font-weight: 700;
+            padding: 0.8rem 1.25rem;
+            border-radius: 14px;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(5, 150, 105, 0.24);
+        }
+
+        .btn-whatsapp-license:hover {
+            background: #047857;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 18px rgba(5, 150, 105, 0.32);
+        }
+
+        /* DASHBOARD APP STYLES */
+        .app-dashboard {
+            background-color: #0f172a;
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: #1e293b; }
+        ::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================== -->
+    <!-- PORTADA DE INGRESO / ACCESO PRIVADO (AUTH)     -->
+    <!-- ============================================== -->
+    <div id="auth-screen" class="auth-screen-wrapper">
+        <div class="auth-card">
+            
+            <!-- Icono de la App -->
+            <div class="auth-icon-container">
+                <img src="icon-192.png" alt="Mis Hábitos Icon" class="auth-icon-img" id="auth-app-icon">
+            </div>
+
+            <!-- Título y Subtítulo según requerimiento -->
+            <h1 class="auth-title">Mis Hábitos</h1>
+            <p class="auth-subtitle">Acceso Privado para Usuarios Autorizados</p>
+
+            <!-- Formulario de Acceso -->
+            <form id="auth-form" class="auth-form" autocomplete="on">
+                
+                <!-- Correo Autorizado -->
+                <div class="form-group">
+                    <label for="auth-email-input" class="auth-label">CORREO AUTORIZADO</label>
+                    <div class="auth-input-wrapper">
+                        <i data-lucide="mail" class="auth-field-icon"></i>
+                        <input 
+                            type="email" 
+                            id="auth-email-input" 
+                            class="auth-input" 
+                            value="adders.ammh@gmail.com" 
+                            placeholder="correo@ejemplo.com" 
+                            required
+                            autocomplete="email"
+                        >
+                    </div>
+                </div>
+
+                <!-- Contraseña -->
+                <div class="form-group">
+                    <label for="auth-password-input" class="auth-label">CONTRASEÑA</label>
+                    <div class="auth-input-wrapper">
+                        <i data-lucide="lock" class="auth-field-icon"></i>
+                        <input 
+                            type="password" 
+                            id="auth-password-input" 
+                            class="auth-input pr-11" 
+                            placeholder="••••••••••••" 
+                            value="admin123"
+                            required
+                            autocomplete="current-password"
+                        >
+                        <button type="button" id="btn-toggle-password" class="auth-password-toggle" aria-label="Mostrar contraseña">
+                            <i data-lucide="eye" id="eye-icon" class="w-4 h-4"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Mensaje de Error / Feedback -->
+                <div id="auth-error-msg" class="hidden text-xs text-rose-500 font-medium text-center"></div>
+
+                <!-- Botón Ingresar -->
+                <button type="submit" id="btn-auth-submit" class="btn-auth-submit">
+                    Ingresar a Mis Hábitos
+                </button>
+            </form>
+
+            <!-- Tarjeta Licencia de Pago Único -->
+            <div class="auth-license-card">
+                <div class="license-badge">
+                    <span>⭐</span>
+                    <span>LICENCIA DE PAGO ÚNICO</span>
+                </div>
+                <p class="license-desc">
+                    ¿Aún no tienes tu acceso? Adquiere tu licencia única para registrar tus hábitos, disciplina y metas diarias de por vida sin mensualidades.
+                </p>
+                <a 
+                    href="https://wa.me/51927000936?text=Hola,%20deseo%20adquirir%20mi%20licencia%20de%20acceso%20para%20Mis%20H%C3%A1bitos." 
+                    target="_blank" 
+                    rel="noopener noreferrer" 
+                    class="btn-whatsapp-license"
+                >
+                    <i data-lucide="message-circle" class="w-4 h-4 fill-white stroke-none"></i>
+                    <span>Solicitar Licencia por WhatsApp</span>
+                </a>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- PANEL PRINCIPAL DE HÁBITOS (DASHBOARD)         -->
+    <!-- ============================================== -->
+    <div id="app-dashboard" class="app-dashboard hidden p-4 md:p-8">
+        <div class="max-w-6xl mx-auto space-y-6">
+            
+            <!-- Barra Superior de Navegación y Perfil -->
+            <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-800/60 backdrop-blur-md px-5 py-3.5 rounded-2xl border border-slate-700/60 shadow-md">
+                <div class="flex items-center gap-3">
+                    <img src="icon-192.png" alt="Icono" class="w-9 h-9 rounded-xl shadow-sm border border-emerald-500/30">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="font-bold text-white text-base">Mis Hábitos</span>
+                            <span id="role-badge" class="bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1">
+                                <i data-lucide="shield-check" class="w-3 h-3"></i> Administrador
+                            </span>
+                        </div>
+                        <span id="logged-user-email" class="text-xs text-slate-400">adders.ammh@gmail.com</span>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button 
+                        id="btn-open-settings" 
+                        class="bg-slate-700/60 hover:bg-slate-700 text-slate-200 text-xs font-semibold px-3 py-2 rounded-xl border border-slate-600 transition flex items-center gap-1.5"
+                    >
+                        <i data-lucide="key" class="w-3.5 h-3.5"></i> Cuenta & Licencias
+                    </button>
+                    <button 
+                        id="btn-logout" 
+                        class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 text-xs font-semibold px-3 py-2 rounded-xl transition flex items-center gap-1.5"
+                    >
+                        <i data-lucide="log-out" class="w-3.5 h-3.5"></i> Salir
+                    </button>
+                </div>
+            </div>
+
+            <!-- Encabezado y Formulario Rápido -->
+            <header class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-800/80 p-6 rounded-2xl border border-slate-700/60 shadow-lg">
+                <div>
+                    <h1 class="text-2xl font-bold text-white flex items-center gap-2">
+                        <i data-lucide="flame" class="text-amber-500 w-7 h-7"></i>
+                        Panel de Hábitos y Rachas
+                    </h1>
+                    <p class="text-slate-400 text-sm mt-1">Monitoreo semanal de disciplina y metas diarias</p>
+                </div>
+                
+                <form id="habit-form" class="flex gap-2">
+                    <input 
+                        type="text" 
+                        id="habit-input" 
+                        placeholder="Nueva meta diaria..." 
+                        required
+                        class="bg-slate-900 border border-slate-700 text-sm rounded-xl px-4 py-2.5 text-white placeholder-slate-500 focus:outline-none focus:border-emerald-500 w-full md:w-64"
+                    >
+                    <button 
+                        type="submit" 
+                        class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 shrink-0 shadow-md shadow-emerald-900/20"
+                    >
+                        <i data-lucide="plus" class="w-4 h-4"></i> Añadir
+                    </button>
+                </form>
+            </header>
+
+            <!-- Tarjetas de KPIs -->
+            <section class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-slate-800/60 border border-slate-700/50 p-5 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-medium uppercase tracking-wider">Tasa de Cumplimiento</span>
+                        <div class="text-3xl font-bold text-emerald-400 mt-1" id="kpi-rate">0%</div>
+                        <span class="text-slate-500 text-xs">Esta semana</span>
+                    </div>
+                    <div class="bg-emerald-500/10 p-3.5 rounded-xl border border-emerald-500/20">
+                        <i data-lucide="check-circle-2" class="text-emerald-400 w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/60 border border-slate-700/50 p-5 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-medium uppercase tracking-wider">Mejor Racha Activa</span>
+                        <div class="text-3xl font-bold text-amber-400 mt-1" id="kpi-streak">0 días</div>
+                        <span class="text-slate-500 text-xs" id="kpi-streak-name">Sin registros</span>
+                    </div>
+                    <div class="bg-amber-500/10 p-3.5 rounded-xl border border-amber-500/20">
+                        <i data-lucide="zap" class="text-amber-400 w-6 h-6"></i>
+                    </div>
+                </div>
+
+                <div class="bg-slate-800/60 border border-slate-700/50 p-5 rounded-2xl flex items-center justify-between">
+                    <div>
+                        <span class="text-slate-400 text-xs font-medium uppercase tracking-wider">Metas Completadas</span>
+                        <div class="text-3xl font-bold text-indigo-400 mt-1" id="kpi-total">0 / 0</div>
+                        <span class="text-slate-500 text-xs">Total acumulado semanal</span>
+                    </div>
+                    <div class="bg-indigo-500/10 p-3.5 rounded-xl border border-indigo-500/20">
+                        <i data-lucide="award" class="text-indigo-400 w-6 h-6"></i>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Matriz de Hábitos Semanal -->
+            <section class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 shadow-lg overflow-x-auto">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-lg font-semibold text-white flex items-center gap-2">
+                        <i data-lucide="calendar-check" class="w-5 h-5 text-slate-400"></i>
+                        Registro Diario (Lunes a Domingo)
+                    </h2>
+                    <button onclick="resetWeek()" class="text-xs text-slate-400 hover:text-rose-400 transition flex items-center gap-1">
+                        <i data-lucide="rotate-ccw" class="w-3.5 h-3.5"></i> Reiniciar semana
+                    </button>
+                </div>
+
+                <table class="w-full text-left border-collapse min-w-[600px]">
+                    <thead>
+                        <tr class="border-b border-slate-700/80 text-slate-400 text-xs uppercase">
+                            <th class="py-3 px-4 font-semibold w-1/3">Hábito / Meta</th>
+                            <th class="py-3 px-2 text-center">Lun</th>
+                            <th class="py-3 px-2 text-center">Mar</th>
+                            <th class="py-3 px-2 text-center">Mié</th>
+                            <th class="py-3 px-2 text-center">Jue</th>
+                            <th class="py-3 px-2 text-center">Vie</th>
+                            <th class="py-3 px-2 text-center">Sáb</th>
+                            <th class="py-3 px-2 text-center">Dom</th>
+                            <th class="py-3 px-4 text-center">Racha</th>
+                            <th class="py-3 px-2 text-right">Acción</th>
+                        </tr>
+                    </thead>
+                    <tbody id="habits-tbody" class="divide-y divide-slate-700/50 text-sm">
+                        <!-- Filas generadas dinámicamente -->
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- Gráficos de Rendimiento y Rachas -->
+            <section class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Gráfico 1: Consistencia por Día -->
+                <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="bar-chart-2" class="w-5 h-5 text-emerald-400"></i>
+                        Metas Completadas por Día
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="dailyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Gráfico 2: Comparativa de Rachas -->
+                <div class="bg-slate-800/80 border border-slate-700/60 rounded-2xl p-6 shadow-lg">
+                    <h3 class="text-base font-semibold text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="trending-up" class="w-5 h-5 text-amber-400"></i>
+                        Racha Actual por Hábito (Días Consecutivos)
+                    </h3>
+                    <div class="h-64">
+                        <canvas id="streakChart"></canvas>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- MODAL: GESTIÓN DE CUENTA Y LICENCIAS (ADMIN)   -->
+    <!-- ============================================== -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-700 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+            
+            <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                <div class="flex items-center gap-3">
+                    <div class="bg-blue-500/20 text-blue-400 p-2.5 rounded-xl border border-blue-500/30">
+                        <i data-lucide="shield" class="w-5 h-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-white font-bold text-lg">Mi Cuenta & Licencias</h3>
+                        <p class="text-xs text-slate-400">Gestión de seguridad y control de clientes</p>
+                    </div>
+                </div>
+                <button id="btn-close-settings" class="text-slate-400 hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- Cambio de Contraseña -->
+            <form id="change-pass-form" class="space-y-3">
+                <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400">Seguridad de Acceso</h4>
+                <div>
+                    <label class="block text-xs text-slate-300 mb-1">Nueva Contraseña</label>
+                    <input type="password" id="new-password-input" placeholder="Mínimo 4 caracteres" required class="w-full bg-slate-800 border border-slate-700 text-sm text-white rounded-xl px-3.5 py-2 focus:outline-none focus:border-blue-500">
+                </div>
+                <button type="submit" class="bg-blue-600 hover:bg-blue-500 text-white font-medium text-xs px-4 py-2 rounded-xl transition">
+                    Actualizar Mi Contraseña
+                </button>
+                <div id="pass-feedback" class="text-xs font-medium hidden"></div>
+            </form>
+
+            <!-- Panel Exclusivo Administrador -->
+            <div id="admin-licenses-box" class="border-t border-slate-800 pt-5 space-y-4">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="users" class="w-4 h-4 text-emerald-400"></i>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-emerald-400">Autorizar Nueva Licencia de Cliente</h4>
+                </div>
+                <p class="text-xs text-slate-400">Genera accesos para clientes autorizados que soliciten su licencia por WhatsApp.</p>
+                
+                <form id="add-client-form" class="space-y-3 bg-slate-800/60 p-4 rounded-xl border border-slate-700/60">
+                    <div>
+                        <label class="block text-xs text-slate-300 mb-1">Correo del Cliente</label>
+                        <input type="email" id="client-email-input" placeholder="cliente@correo.com" required class="w-full bg-slate-900 border border-slate-700 text-sm text-white rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="block text-xs text-slate-300 mb-1">Nombre</label>
+                            <input type="text" id="client-name-input" placeholder="Ej: Carlos M." required class="w-full bg-slate-900 border border-slate-700 text-sm text-white rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 mb-1">Contraseña Inicial</label>
+                            <input type="text" id="client-pass-input" value="123456" required class="w-full bg-slate-900 border border-slate-700 text-sm text-white rounded-xl px-3.5 py-2 focus:outline-none focus:border-emerald-500">
+                        </div>
+                    </div>
+                    <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs py-2.5 rounded-xl transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-900/20">
+                        <i data-lucide="user-plus" class="w-4 h-4"></i> Otorgar Licencia
+                    </button>
+                </form>
+
+                <div>
+                    <h5 class="text-xs font-semibold text-slate-400 mb-2">Clientes Activos</h5>
+                    <div id="clients-list" class="space-y-2">
+                        <!-- Clientes listados dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- LOGICA JAVASCRIPT DE LA APP                    -->
+    <!-- ============================================== -->
+    <script>
+        const ADMIN_EMAIL = 'adders.ammh@gmail.com';
+        const DEFAULT_ADMIN_PASS = 'admin123';
+        const DAYS = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
+
+        // Datos iniciales de hábitos
+        const defaultHabits = [
+            { id: 1, name: 'Entrenamiento de fuerza / Pesas', days: [true, true, false, true, true, false, false] },
+            { id: 2, name: 'Tácticas de Ajedrez (20 min)', days: [true, true, true, true, true, false, false] },
+            { id: 3, name: 'Lectura / Estudio de posgrado', days: [false, true, true, true, false, false, false] },
+            { id: 4, name: 'Práctica de Freestyle / Creación', days: [true, false, true, true, true, false, false] }
+        ];
+
+        let currentUser = null;
+        let habits = [];
+        let dailyChartInstance = null;
+        let streakChartInstance = null;
+
+        // Recuperar usuarios/licencias autorizadas
+        function getLicensedUsers() {
+            const raw = localStorage.getItem('habitos_licensed_users');
+            if (!raw) {
+                // Por defecto el administrador
+                const initial = {};
+                initial[ADMIN_EMAIL] = {
+                    name: 'Administrador Principal',
+                    password: DEFAULT_ADMIN_PASS,
+                    role: 'admin',
+                    createdAt: Date.now()
+                };
+                localStorage.setItem('habitos_licensed_users', JSON.stringify(initial));
+                return initial;
+            }
+            return JSON.parse(raw);
+        }
+
+        function saveLicensedUsers(users) {
+            localStorage.setItem('habitos_licensed_users', JSON.stringify(users));
+        }
+
+        // Carga hábitos del usuario actual
+        function loadUserHabits() {
+            if (!currentUser) return;
+            const storageKey = `habitos_data_${currentUser.email}`;
+            const raw = localStorage.getItem(storageKey);
+            if (raw) {
+                habits = JSON.parse(raw);
+            } else {
+                habits = JSON.parse(JSON.stringify(defaultHabits));
+                saveUserHabits();
+            }
+        }
+
+        function saveUserHabits() {
+            if (!currentUser) return;
+            const storageKey = `habitos_data_${currentUser.email}`;
+            localStorage.setItem(storageKey, JSON.stringify(habits));
+        }
+
+        // Calcular racha máxima consecutiva
+        function calculateStreak(daysArray) {
+            let currentStreak = 0;
+            let maxStreak = 0;
+            for (let completed of daysArray) {
+                if (completed) {
+                    currentStreak++;
+                    if (currentStreak > maxStreak) maxStreak = currentStreak;
+                } else {
+                    currentStreak = 0;
+                }
+            }
+            return maxStreak;
+        }
+
+        function toggleDay(habitId, dayIndex) {
+            const habit = habits.find(h => h.id === habitId);
+            if (habit) {
+                habit.days[dayIndex] = !habit.days[dayIndex];
+                saveUserHabits();
+                renderDashboard();
+            }
+        }
+
+        function deleteHabit(habitId) {
+            habits = habits.filter(h => h.id !== habitId);
+            saveUserHabits();
+            renderDashboard();
+        }
+
+        function resetWeek() {
+            if (confirm('¿Deseas desmarcar todos los registros de la semana actual?')) {
+                habits.forEach(h => h.days = [false, false, false, false, false, false, false]);
+                saveUserHabits();
+                renderDashboard();
+            }
+        }
+
+        // Renderizado de tabla
+        function renderTable() {
+            const tbody = document.getElementById('habits-tbody');
+            tbody.innerHTML = '';
+
+            if (habits.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="10" class="text-center py-8 text-slate-500">No hay metas registradas. Añade una arriba para empezar.</td></tr>`;
+                return;
+            }
+
+            habits.forEach(habit => {
+                const streak = calculateStreak(habit.days);
+                const tr = document.createElement('tr');
+                tr.className = 'hover:bg-slate-700/20 transition';
+
+                let daysHtml = '';
+                habit.days.forEach((completed, index) => {
+                    daysHtml += `
+                        <td class="py-3.5 px-2 text-center">
+                            <button 
+                                onclick="toggleDay(${habit.id}, ${index})"
+                                class="w-7 h-7 rounded-lg border transition flex items-center justify-center mx-auto ${
+                                    completed 
+                                    ? 'bg-emerald-500 border-emerald-400 text-slate-950 shadow-sm shadow-emerald-500/30' 
+                                    : 'bg-slate-900/80 border-slate-700 hover:border-slate-500 text-transparent'
+                                }"
+                            >
+                                <i data-lucide="check" class="w-4 h-4 stroke-[3]"></i>
+                            </button>
+                        </td>
+                    `;
+                });
+
+                tr.innerHTML = `
+                    <td class="py-3.5 px-4 font-medium text-slate-200">${habit.name}</td>
+                    ${daysHtml}
+                    <td class="py-3.5 px-4 text-center">
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold ${
+                            streak >= 3 ? 'bg-amber-500/20 text-amber-300 border border-amber-500/30' : 'bg-slate-700/60 text-slate-300'
+                        }">
+                            <i data-lucide="flame" class="w-3.5 h-3.5 ${streak >= 3 ? 'text-amber-400' : 'text-slate-400'}"></i>
+                            ${streak} d
+                        </span>
+                    </td>
+                    <td class="py-3.5 px-2 text-right">
+                        <button onclick="deleteHabit(${habit.id})" class="text-slate-500 hover:text-rose-400 p-1.5 rounded-lg transition" title="Eliminar hábito">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+            lucide.createIcons();
+        }
+
+        // Actualizar KPIs
+        function updateKPIs() {
+            const totalPossible = habits.length * 7;
+            let totalCompleted = 0;
+            let bestStreak = 0;
+            let bestHabitName = 'Ninguno';
+
+            habits.forEach(h => {
+                const completedCount = h.days.filter(Boolean).length;
+                totalCompleted += completedCount;
+                const streak = calculateStreak(h.days);
+                if (streak > bestStreak) {
+                    bestStreak = streak;
+                    bestHabitName = h.name;
+                }
+            });
+
+            const rate = totalPossible > 0 ? Math.round((totalCompleted / totalPossible) * 100) : 0;
+
+            document.getElementById('kpi-rate').textContent = `${rate}%`;
+            document.getElementById('kpi-streak').textContent = `${bestStreak} ${bestStreak === 1 ? 'día' : 'días'}`;
+            document.getElementById('kpi-streak-name').textContent = bestStreak > 0 ? bestHabitName : 'Sin racha activa';
+            document.getElementById('kpi-total').textContent = `${totalCompleted} / ${totalPossible}`;
+        }
+
+        // Renderizado de Gráficos
+        function renderCharts() {
+            const dailyCounts = DAYS.map((_, dayIndex) => {
+                return habits.reduce((sum, habit) => sum + (habit.days[dayIndex] ? 1 : 0), 0);
+            });
+
+            const ctxDaily = document.getElementById('dailyChart').getContext('2d');
+            if (dailyChartInstance) dailyChartInstance.destroy();
+            dailyChartInstance = new Chart(ctxDaily, {
+                type: 'bar',
+                data: {
+                    labels: DAYS,
+                    datasets: [{
+                        label: 'Metas completadas',
+                        data: dailyCounts,
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)',
+                        borderColor: '#10b981',
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: Math.max(habits.length, 1),
+                            ticks: { stepSize: 1, color: '#94a3b8' },
+                            grid: { color: 'rgba(51, 65, 85, 0.4)' }
+                        },
+                        x: {
+                            ticks: { color: '#94a3b8' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+
+            const habitLabels = habits.map(h => h.name.length > 22 ? h.name.substring(0, 22) + '...' : h.name);
+            const habitStreaks = habits.map(h => calculateStreak(h.days));
+
+            const ctxStreak = document.getElementById('streakChart').getContext('2d');
+            if (streakChartInstance) streakChartInstance.destroy();
+            streakChartInstance = new Chart(ctxStreak, {
+                type: 'bar',
+                data: {
+                    labels: habitLabels,
+                    datasets: [{
+                        label: 'Días consecutivos',
+                        data: habitStreaks,
+                        backgroundColor: 'rgba(245, 158, 11, 0.75)',
+                        borderColor: '#f59e0b',
+                        borderWidth: 1.5,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            max: 7,
+                            ticks: { stepSize: 1, color: '#94a3b8' },
+                            grid: { color: 'rgba(51, 65, 85, 0.4)' }
+                        },
+                        y: {
+                            ticks: { color: '#e2e8f0' },
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
+        }
+
+        function renderDashboard() {
+            renderTable();
+            updateKPIs();
+            renderCharts();
+        }
+
+        // Añadir nuevo hábito
+        document.getElementById('habit-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const input = document.getElementById('habit-input');
+            const name = input.value.trim();
+            if (name) {
+                habits.push({
+                    id: Date.now(),
+                    name: name,
+                    days: [false, false, false, false, false, false, false]
+                });
+                input.value = '';
+                saveUserHabits();
+                renderDashboard();
+            }
+        });
+
+        // Alternar visibilidad de contraseña en portada
+        document.getElementById('btn-toggle-password').addEventListener('click', function() {
+            const passInput = document.getElementById('auth-password-input');
+            const eyeIcon = document.getElementById('eye-icon');
+            if (passInput.type === 'password') {
+                passInput.type = 'text';
+                eyeIcon.setAttribute('data-lucide', 'eye-off');
+            } else {
+                passInput.type = 'password';
+                eyeIcon.setAttribute('data-lucide', 'eye');
+            }
+            lucide.createIcons();
+        });
+
+        // Lógica de Autenticación / Login
+        document.getElementById('auth-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const email = document.getElementById('auth-email-input').value.trim().toLowerCase();
+            const pass = document.getElementById('auth-password-input').value;
+            const errorMsg = document.getElementById('auth-error-msg');
+
+            const users = getLicensedUsers();
+
+            // Si es el admin y la cuenta aún no está registrada localmente, inicializarla
+            if (email === ADMIN_EMAIL.toLowerCase() && !users[ADMIN_EMAIL]) {
+                users[ADMIN_EMAIL] = {
+                    name: 'Administrador Principal',
+                    password: pass || DEFAULT_ADMIN_PASS,
+                    role: 'admin',
+                    createdAt: Date.now()
+                };
+                saveLicensedUsers(users);
+            }
+
+            const userAccount = users[email] || (email === ADMIN_EMAIL.toLowerCase() ? users[ADMIN_EMAIL] : null);
+
+            if (!userAccount) {
+                errorMsg.textContent = 'Este correo no cuenta con licencia activa. Solicítala por WhatsApp.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            if (userAccount.password !== pass) {
+                errorMsg.textContent = 'Contraseña incorrecta. Inténtalo de nuevo.';
+                errorMsg.classList.remove('hidden');
+                return;
+            }
+
+            // Éxito: Guardar sesión
+            currentUser = {
+                email: email,
+                name: userAccount.name,
+                role: userAccount.role || (email === ADMIN_EMAIL.toLowerCase() ? 'admin' : 'client')
+            };
+
+            localStorage.setItem('habitos_auth_session', JSON.stringify(currentUser));
+            errorMsg.classList.add('hidden');
+            enterApp();
+        });
+
+        function enterApp() {
+            document.getElementById('auth-screen').classList.add('hidden');
+            document.getElementById('app-dashboard').classList.remove('hidden');
+
+            document.getElementById('logged-user-email').textContent = currentUser.email;
+            const roleBadge = document.getElementById('role-badge');
+            const adminBox = document.getElementById('admin-licenses-box');
+
+            if (currentUser.role === 'admin' || currentUser.email === ADMIN_EMAIL.toLowerCase()) {
+                roleBadge.innerHTML = '<i data-lucide="shield-check" class="w-3 h-3"></i> Administrador';
+                roleBadge.className = 'bg-amber-500/20 text-amber-300 border border-amber-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1';
+                adminBox.classList.remove('hidden');
+                renderClientsList();
+            } else {
+                roleBadge.innerHTML = '<i data-lucide="user-check" class="w-3 h-3"></i> Licencia Activa';
+                roleBadge.className = 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2 py-0.5 rounded-full flex items-center gap-1';
+                adminBox.classList.add('hidden');
+            }
+
+            loadUserHabits();
+            lucide.createIcons();
+            renderDashboard();
+        }
+
+        // Cerrar Sesión
+        document.getElementById('btn-logout').addEventListener('click', function() {
+            localStorage.removeItem('habitos_auth_session');
+            currentUser = null;
+            document.getElementById('app-dashboard').classList.add('hidden');
+            document.getElementById('auth-screen').classList.remove('hidden');
+            lucide.createIcons();
+        });
+
+        // Modal de Configuración & Licencias
+        const settingsModal = document.getElementById('settings-modal');
+        document.getElementById('btn-open-settings').addEventListener('click', () => {
+            settingsModal.classList.remove('hidden');
+            lucide.createIcons();
+        });
+        document.getElementById('btn-close-settings').addEventListener('click', () => {
+            settingsModal.classList.add('hidden');
+            document.getElementById('pass-feedback').classList.add('hidden');
+        });
+
+        // Cambio de contraseña
+        document.getElementById('change-pass-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const newPass = document.getElementById('new-password-input').value.trim();
+            const feedback = document.getElementById('pass-feedback');
+            if (newPass.length < 4) {
+                feedback.textContent = 'La contraseña debe tener al menos 4 caracteres.';
+                feedback.className = 'text-xs font-medium text-rose-400 block';
+                return;
+            }
+            const users = getLicensedUsers();
+            if (users[currentUser.email]) {
+                users[currentUser.email].password = newPass;
+                saveLicensedUsers(users);
+                feedback.textContent = '¡Contraseña actualizada con éxito!';
+                feedback.className = 'text-xs font-medium text-emerald-400 block';
+                document.getElementById('new-password-input').value = '';
+            }
+        });
+
+        // Añadir licencia de cliente (Admin)
+        document.getElementById('add-client-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const cEmail = document.getElementById('client-email-input').value.trim().toLowerCase();
+            const cName = document.getElementById('client-name-input').value.trim();
+            const cPass = document.getElementById('client-pass-input').value.trim();
+
+            const users = getLicensedUsers();
+            users[cEmail] = {
+                name: cName,
+                password: cPass,
+                role: 'client',
+                createdAt: Date.now()
+            };
+            saveLicensedUsers(users);
+            document.getElementById('client-email-input').value = '';
+            document.getElementById('client-name-input').value = '';
+            document.getElementById('client-pass-input').value = '123456';
+            renderClientsList();
+            alert(`Licencia autorizada para ${cName} (${cEmail}) con contraseña: ${cPass}`);
+        });
+
+        function renderClientsList() {
+            const list = document.getElementById('clients-list');
+            list.innerHTML = '';
+            const users = getLicensedUsers();
+            const clientEmails = Object.keys(users).filter(em => em !== ADMIN_EMAIL.toLowerCase());
+
+            if (clientEmails.length === 0) {
+                list.innerHTML = '<div class="text-xs text-slate-500 italic p-2 border border-slate-800 rounded-lg text-center">No hay clientes externos aún. Autoriza uno arriba.</div>';
+                return;
+            }
+
+            clientEmails.forEach(email => {
+                const u = users[email];
+                const div = document.createElement('div');
+                div.className = 'flex items-center justify-between p-2.5 bg-slate-800/80 rounded-xl border border-slate-700/60 text-xs';
+                div.innerHTML = `
+                    <div>
+                        <div class="font-bold text-white">${u.name} <span class="text-[10px] text-emerald-400 font-normal">(${email})</span></div>
+                        <div class="text-slate-400 text-[11px] mt-0.5">Clave: <code class="text-blue-300 font-mono">${u.password}</code></div>
+                    </div>
+                    <button onclick="revokeLicense('${email}')" class="text-rose-400 hover:text-rose-300 p-1 rounded transition" title="Revocar Licencia">
+                        <i data-lucide="trash" class="w-3.5 h-3.5"></i>
+                    </button>
+                `;
+                list.appendChild(div);
+            });
+            lucide.createIcons();
+        }
+
+        window.revokeLicense = function(email) {
+            if (confirm(`¿Revocar acceso al cliente con correo ${email}?`)) {
+                const users = getLicensedUsers();
+                delete users[email];
+                saveLicensedUsers(users);
+                renderClientsList();
+            }
+        };
+
+        // Registro de Service Worker PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
+            });
+        }
+
+        // Inicialización
+        window.addEventListener('DOMContentLoaded', () => {
+            getLicensedUsers(); // Asegura admin inicial
+            lucide.createIcons();
+
+            // Comprobar si hay sesión previa guardada
+            const savedSession = localStorage.getItem('habitos_auth_session');
+            if (savedSession) {
+                try {
+                    currentUser = JSON.parse(savedSession);
+                    enterApp();
+                    return;
+                } catch(e) {
+                    localStorage.removeItem('habitos_auth_session');
+                }
+            }
+        });
+    </script>
+</body>
+</html>
